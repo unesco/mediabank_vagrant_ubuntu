@@ -1,0 +1,20 @@
+{
+    "name": "unesco/mediabank_vagrant_ubuntu",
+    "type": "project",
+    "description": "A VM for local EPrints development, built with Vagrant + Ansible",
+    "keywords": ["vagrant", "vm", "virtual machine", "eprints"],
+    "homepage": "https://www.eprints.org",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Denis Pitzalis",
+            "homepage": "http://www.eprints.org"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/unesco/mediabank_vagrant_ubuntu/issues",
+        "source": "https://github.com/unesco/mediabank_vagrant_ubuntu",
+        "docs": "http://docs.eprints.org"
+    },
+    "require": {}
+}
