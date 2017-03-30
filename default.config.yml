@@ -1,0 +1,142 @@
+---
+# `vagrant_box` can also be set to geerlingguy/centos6, geerlingguy/centos7,
+# geerlingguy/ubuntu1404, geerlingguy/ubuntu1204, parallels/ubuntu-14.04, etc.
+vagrant_box: ubuntu/xenial64
+vagrant_user: ubuntu
+vagrant_synced_folder_default_type: nfs
+
+# If you need to run multiple instances of Eprints VM, set a unique hostname,
+# machine name, and IP address for each instance.
+vagrant_hostname: eprintsvm.dev
+vagrant_machine_name: eprintsvm
+vagrant_ip: 192.168.88.88
+
+# Allow Eprints VM to be accessed via a public network interface on your host.
+# Vagrant boxes are insecure by default, so be careful. You've been warned!
+# See: https://docs.vagrantup.com/v2/networking/public_network.html
+vagrant_public_ip: ""
+vagrant_proxy_http: ""
+
+# A list of synced folders, with the keys 'local_path', 'destination', and
+# a 'type' of [nfs|rsync|smb] (leave empty for slow native shares). See
+# http://docs.eprintsvm.com/en/latest/extras/syncing-folders/ for more info.
+vagrant_synced_folders:
+  - local_path: .
+    destination: /opt/eprints3/vagrant
+    type: nfs
+    create: true
+
+# Memory and CPU to use for this VM.
+vagrant_memory: 2048
+vagrant_cpus: 1
+
+# Minimum required versions.
+eprintsvm_vagrant_version_min: '1.8.5'
+
+# The web server software to use.
+eprintsvm_webserver: apache
+
+# The database system to use.
+eprintsvm_database: mysql
+
+# Set this to 'false' if you don't need to install eprints (using the eprints_*
+# settings below), but instead copy down a database.
+install_site: true
+
+# Required EPrints settings.
+eprints_core_path: /opt/eprints3
+eprints_db_user: eprints
+eprints_db_password: eprints
+eprints_db_name: eprints
+
+# Settings for installing a Eprints site if 'install_site:' is 'true'.
+eprints_version: 3.3.15
+eprints_domain: "{{ vagrant_hostname }}"
+eprints_site_name: "Mediabank devel"
+eprints_install_profile: standard
+eprints_enable_modules: [ 'devel' ]
+eprints_account_name: admin
+eprints_account_pass: admin
+
+# Apache VirtualHosts. Add one for each site you are running inside the VM. For
+# multisite deployments, you can point multiple servernames at one documentroot.
+apache_vhosts:
+  - servername: "{{ eprints_domain }}"
+    serveralias: "www.{{ eprints_domain }}"
+    documentroot: "{{ eprints_core_path }}"
+    extra_parameters: |
+          ProxyPassMatch ^/(.*\.php(/.*)?)$ "fcgi://127.0.0.1:9000{{ eprints_core_path }}"
+
+  - servername: "{{ vagrant_ip }}"
+    serveralias: "dashboard.{{ vagrant_hostname }}"
+    documentroot: "{{ dashboard_install_dir }}"
+    extra_parameters: |
+          ProxyPassMatch ^/(.*\.php(/.*)?)$ "fcgi://127.0.0.1:9000{{ dashboard_install_dir }}"
+          DirectoryIndex index.html
+
+apache_remove_default_vhost: true
+apache_mods_enabled:
+  - expires.load
+  - ssl.load
+  - rewrite.load
+  - proxy.load
+  - proxy_fcgi.load
+
+# MySQL databases and users.
+mysql_databases:
+  - name: "{{ eprints_db_name }}"
+    encoding: utf8mb4
+    collation: utf8mb4_general_ci
+
+mysql_users:
+  - name: "{{ eprints_db_user }}"
+    host: "%"
+    password: "{{ eprints_db_password }}"
+    priv: "{{ eprints_db_name }}.*:ALL"
+
+# Comment out any extra utilities you don't want to install. If you don't want
+# to install *any* extras, set this value to an empty set, e.g. `[]`.
+installed_extras:
+  - mailhog
+  # - memcached
+  # - newrelic
+  - varnish
+  - xapian
+
+# Add any extra apt or yum packages you would like installed.
+extra_packages:
+  - sqlite
+
+# You can configure almost anything else on the server in the rest of this file.
+extra_security_enabled: false
+
+firewall_allowed_tcp_ports:
+  - "22"
+  - "25"
+  - "80"
+  - "81"
+  - "443"
+  - "4444"
+  - "8025"
+  - "8080"
+  - "8443"
+  - "8983"
+  - "9200"
+firewall_log_dropped_packets: false
+
+# MySQL Configuration.
+mysql_root_password: root
+mysql_slow_query_log_enabled: true
+mysql_slow_query_time: 2
+mysql_wait_timeout: 300
+
+# Varnish Configuration TODO.
+varnish_listen_port: "81"
+varnish_default_vcl_template_path: templates/eprintsvm.vcl.j2
+varnish_default_backend_host: "127.0.0.1"
+varnish_default_backend_port: "80"
+
+# Other configuration.
+dashboard_install_dir: /var/www/dashboard
+known_hosts_path: ~/.ssh/known_hosts
+ssh_home: "{{ eprints_core_path }}"
