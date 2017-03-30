@@ -58,13 +58,12 @@ useradd --user-group --create-home --shell /bin/bash --groups adm,sudo --home-di
 echo "${EPRINTS_USER}:${EPRINTS_USER}" | chpasswd
 mkdir --mode 0700 --parents "${EPRINTS_HOME}/.ssh"
 wget https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub -nv -O "${EPRINTS_HOME}/.ssh/authorized_keys"
-ssh-keyscan -H repository.unesco.org >> "${EPRINTS_HOME}"/.ssh/known_hosts
+ssh-keyscan -H github.com >> "${EPRINTS_HOME}"/.ssh/known_hosts
 chmod 600 "${EPRINTS_HOME}/.ssh/*"
 cp /home/ubuntu/.bashrc "${EPRINTS_HOME}"
 cp /home/ubuntu/.profile "${EPRINTS_HOME}"
 
 # Install EPrints
-ssh-keyscan -H repository.unesco.org >> ~/.ssh/known_hosts  
 cd "${EPRINTS_HOME}"
 if [ -d "eprints" ]; then
     echo "It appears you already cloned eprints. Skipping..."
