@@ -1,0 +1,15 @@
+# OS-specific files.
+.DS_Store
+
+# logging
+ubuntu-*.log
+
+# Editor and language files.
+
+# Vagrant files.
+.vagrant/
+
+# EPrints VM specific files.
+
+# Local overrides
+local.config.yml
