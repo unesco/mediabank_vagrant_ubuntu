@@ -1,0 +1,4 @@
+vagrant_proxy_http: "http://proxy.company.com:8080"
+vagrant_noproxy: "localhost,127.0.0.1"
+vagrant_ip: 0.0.0.0
+vagrant_public_ip: 0.0.0.0
